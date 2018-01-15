@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>title</title>
+</head>
+<script>
+	// You can also require other files to run in this process
+	require('../renderer.js')
+	const $=require("jquery");
+	const electron=require("electron");
+	const ipc=electron.ipcRenderer;
+</script>
+<link rel="stylesheet" href="./title.css">
+<body style="margin:0;width:100vw;height:100vh;background-image:url(../image/background/gatag-00006359.jpg);background-repeat:no-repeat;background-size:cover;overflow:hidden">
+	<div id="logo">
+		<img src="../image/cooltext262030964255809.png" style="width:100%;margin-top:2%">
+	</div>
+	<div id="mainChara">
+		<img src="../image/chara/2_stand/1345010201.png" style="margin-top: -22%;margin-left: -15%;width:70%">
+	</div>
+	<div id="menu" style="position: fixed; top:200px;left: 360px;width:630px;height:460px;overflow: scroll;vertical-align: middle;padding-left:20px">
+		<div style="position: absolute; top: 100px">
+		<input class="start" type="button" value="START" onclick="start()" style="display: block;">
+		<input class="start" type="button" value="遊び方" onclick="manual()" style="display: block;">
+		</div>
+		<div style="position: absolute;top: 50px">
+		<input class="member" type="button" value="一人で遊ぶ" onclick="solo()" style="display:none">
+		<input class="member" type="button" value="二人で遊ぶ" onclick="member(0)" style="display:none">
+		<input class="member" type="button" value="通信対戦" onclick="member(-1)" style="display:none">
+		<input class="member" type="button" value="戻る" onclick="Return()" style="display:none;font-size:20px;background-color: #a00">
+		</div>
+		<div style="position: absolute;top: 100px">
+		<input class="mode" type="button" value="クエスト" onclick="selectQuest()" style="display:none">
+		<input class="mode" type="button" value="フリーマッチ" onclick="member(1)" style="display:none">
+		<input class="mode" type="button" value="戻る" onclick="Return()" style="display:none;font-size:20px;background-color: #a00">
+		</div>
+		<div id="QuestList" style="position: absolute;top: 0px;">
+		</div>
+		<div style="position: absolute;top: 50px">
+		<input class="playernum" type="button" value="一対一" onclick="playernum(1)" style="display:none;">
+		<input class="playernum" type="button" value="二対二" onclick="playernum(2)" style="display:none;">
+		<input class="playernum" type="button" value="三対三" onclick="playernum(3)" style="display:none">
+		<input class="playernum" type="button" value="戻る" onclick="Return()" style="display:none;font-size:20px;background-color: #a00">
+		</div>
+
+
+	</div>
+			<div class="detail" style="background-color: #640bff;position: absolute;top: 20px;left: 10px;width: 350px;height: 600px;display: none;color: #fff;border-radius: 5px;border:solid ;font-size: 20px">
+			<!-- <b id="ditailTitle" ></b> -->
+			<!-- <hr> -->
+			<div id="winCondition"></div>
+			<div id="LoseCondition"></div>
+			<hr>
+			<u style="color: #aaF">自軍</u>
+			<div id="MyTeam"></div>
+			<u style="color: #f00">敵軍</u>
+			<div id="EnemyTeam"></div>
+			<u style="color: #0f0">友軍</u>
+			<div id="FriendTeam"></div>
+			<hr>
+			<u style="color: #fff">特殊条件</u>
+			<div id="specialCondition">
+			</div>
+		</div>
+	<!-- クエスト -->
+<script src="../quest/Quest.js"></script>
+<script src="../quest/QuestDebug.js"></script>
+<script src="../quest/Quest1.js"></script>
+<script src="../quest/Quest2.js"></script>
+<script src="../quest/Quest3.js"></script>
+<script src="../quest/Quest4.js"></script>
+<script src="../quest/Quest5.js"></script>
+<script src="../quest/Quest6.js"></script>
+<script src="../quest/Quest7.js"></script>
+<script src="../quest/Quest8.js"></script>
+<script src="../quest/Quest9.js"></script>
+<script src="../quest/Quest10.js"></script>
+<script src="../quest/Quest11.js"></script>
+<script src="../quest/Quest12.js"></script>
+<script src="../quest/Quest13.js"></script>
+<script src="../quest/Quest14.js"></script>
+<script src="../quest/Quest15.js"></script>
+<script src="../quest/Quest16.js"></script>
+<script src="../quest/Quest17.js"></script>
+<script src="../quest/Quest18.js"></script>
+<script src="../quest/Quest19.js"></script>
+<script src="../quest/Quest20.js"></script>
+<script src="../quest/Quest21.js"></script>
+<script src="../quest/Quest22.js"></script>
+<script src="../quest/Quest23.js"></script>
+<script src="../quest/QuestList.js"></script>
+
+<!-- データベース -->
+<script src="../database/database.js"></script>
+</body>
+<script>
+var mPlayerNum = -1;
+
+var QuestListHTML = "<br>";
+for(var i=1;i<=QuestList.getQuestNum();i++){
+	QuestListHTML += "<span id='quest"+i+"clear' class='quest'"+
+	"style='position:absolute;font-size:30px;color:#ff0;transform:rotate(-30deg);margin-left:-20px'"+
+	"></span>"
+	QuestListHTML += '<input id="quest'+i+'" class="quest" type="button" value="'+QuestList.getQuestClass(i).getText()+'" onclick="quest('+i+')" onmouseover="displayQuest('+i+')" style="display:none">';
+}
+QuestListHTML += '<input class="quest" type="button" value="戻る" onclick="Return()" style="display:none;font-size:20px;background-color: #a00">';
+$("#QuestList")[0].innerHTML = QuestListHTML;
+
+//クエストクリア状況確認
+for(var i=1;i<=QuestList.getQuestNum();i++){
+	let tQuestIndex=i;
+	isQuestCrelar(QuestList.getQuestClass(tQuestIndex).getNumber(),(tClear)=>{
+		if(tClear){
+			//クリアしていた場合
+			let tText=document.getElementById("quest"+tQuestIndex+"clear").textContent="★clear"
+			document.getElementById("quest"+tQuestIndex+"clear").style.display="none";
+		}
+	})
+}
+
+function start(){
+	$(".start").css("display","none");
+	$(".member").css("display","block");
+}
+function manual(){
+    location.href = "../manual/manual.html";
+}
+function solo(){
+	$(".member").css("display","none");
+	$(".mode").css("display","block");
+}
+function selectQuest(){
+	$(".mode").css("display","none");
+	$(".quest").css("display","block");
+}
+//2Pは 0:プレイヤー,他:AIの番号
+function member(aNum){
+	mPlayerNum = aNum;
+	$(".member").css("display","none");
+	$(".playernum").css("display","block");
+	$(".mode").css("display","none");
+	$(".quest").css("display","none");
+}
+function playernum(aNum){
+	if(mPlayerNum==-1){
+		ipc.send("start",[mPlayerNum,aNum,0]);
+		return;
+	}
+	ipc.send("start",[mPlayerNum,aNum,aNum]);
+}
+function Return(){
+	$(".start").css("display","block");
+	$(".member").css("display","none");
+	$(".playernum").css("display","none");
+	$(".mode").css("display","none");
+	$(".quest").css("display","none");
+}
+function quest(aNum){
+	ipc.send("quest",aNum);
+}
+
+function displayQuest(aNum){
+	var tQuest = QuestList.getQuestClass(aNum);
+	$(".detail").css("display","block");
+	// $("#ditailTitle")[0].innerHTML = tQuest.getText();
+	$("#winCondition")[0].innerHTML = "勝利条件:"+tQuest.getWinCondition();
+	$("#LoseCondition")[0].innerHTML = "敗北条件:"+tQuest.getLoseCondition();
+		$("#MyTeam")[0].innerHTML = "";
+	for(var i=0;i<tQuest.getMyTeam().length;i++){
+		if(i>0) 		$("#MyTeam")[0].innerHTML += "　";
+		$("#MyTeam")[0].innerHTML += tQuest.getMyTeam()[i];
+	}
+		$("#EnemyTeam")[0].innerHTML = "";
+	for(var i=0;i<tQuest.getEnemyTeam().length;i++){
+		if(i>0) 		$("#EnemyTeam")[0].innerHTML += "　";
+		$("#EnemyTeam")[0].innerHTML += tQuest.getEnemyTeam()[i];
+	}
+		$("#FriendTeam")[0].innerHTML = "";
+	for(var i=0;i<tQuest.getFriendTeam().length;i++){
+		if(i>0) 		$("#FriendTeam")[0].innerHTML += "　";
+		$("#FriendTeam")[0].innerHTML += tQuest.getFriendTeam()[i];
+	}
+		$("#specialCondition")[0].innerHTML = "";
+	for(var i=0;i<tQuest.getCondition().length;i++){
+		if(i>0) 		$("#specialCondition")[0].innerHTML += "<br>";
+		$("#specialCondition")[0].innerHTML += tQuest.getCondition()[i];
+	}
+}
+$(".quest").mouseout(function(){
+	$(".detail").css("display","none");
+})
+</script>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+</head>
+<script>
+require('../renderer.js')
+const $=require("jquery");
+const electron=require("electron");
+const ipc=electron.ipcRenderer;
+</script>
+<style>
+img{
+	image-rendering:pixelated;
+}
+.popupBox{
+	background-color:#640bff;
+	border:double;
+	border-radius: 10px;
+	color:#fff;
+	font-size: 20px;
+}
+</style>
+<body style="overflow:hidden">
+<div id="map" style="line-height:0em;overflow:hidden;position:fixed;white-space:nowrap;"></div>
+<iframe id="frame" style="position:fixed;top:0;left:0;border:0;z-index:5;width:100%;height:100%;display:none;"></iframe>
+<div id="sentence" class="popupBox" style="position:fixed;bottom:0;left:0;width:100%;height:20%;display:none;z-index:4"></div>
+</body>
+<!-- database -->
+<script src="../database/CharaDatabase.js"></script>
+<script src="../database/ConsumItemDatabase.js"></script>
+<script src="../database/ImportantItemDatabase.js"></script>
+<script src="../database/SaveDatabase.js"></script>
+<!-- creature -->
+<script src="./creature/Creature.js"></script>
+<script src="./creature/MyChara.js"></script>
+<script src="./creature/Npc.js"></script>
+<script src="./creature/Thing.js"></script>
+<script src="./creature/ItemObject.js"></script>
+<script src="./creature/Chest.js"></script>
+
+<script src="./Event.js"></script>
+<script src="./PreImage.js"></script>
+<script src="./KeyMonitor.js"></script>
+<script src="./PopupBox.js"></script>
+<script src="./Map.js"></script>
+<script src="./Frame.js"></script>
+<script src="./Mas.js"></script>
+
+<script src="./mapFeild.js"></script>
+</html>
